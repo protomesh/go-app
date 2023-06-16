@@ -149,8 +149,8 @@ func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 	}
 
 	cfg := NewCompositeSource(
-		NewFlagSource(opts.KeyCase, opts.FlagSet),
-		NewEnvSource(opts.KeyCase),
+		NewFlagSource(JsonPathCase, opts.FlagSet),
+		NewEnvSource(JsonPathCase),
 	)
 
 	err := cfg.Load()
@@ -165,8 +165,8 @@ func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 	if appInstance.ConfigFile.IsSet() {
 
 		cfg = NewCompositeSource(
-			NewFlagSource(opts.KeyCase, opts.FlagSet),
-			NewEnvSource(opts.KeyCase),
+			NewFlagSource(JsonPathCase, opts.FlagSet),
+			NewEnvSource(JsonPathCase),
 			NewFileSource(appInstance.ConfigFile.StringVal()),
 		)
 

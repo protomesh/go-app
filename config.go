@@ -38,13 +38,11 @@ type ConfigSource interface {
 type AppOptions struct {
 	tw table.Writer
 
-	Print     bool
-	Source    ConfigSource
-	FlagSet   *flag.FlagSet
-	KeyCase   KeyCase
-	Prefix    string
-	Separator string
-	Args      []string
+	Print   bool
+	Source  ConfigSource
+	FlagSet *flag.FlagSet
+	Prefix  string
+	Args    []string
 }
 
 func (ao *AppOptions) getFieldNameAndType(typeVal reflect.StructField) (string, string) {
@@ -62,7 +60,7 @@ func (ao *AppOptions) getFieldNameAndType(typeVal reflect.StructField) (string, 
 	}
 
 	if len(ao.Prefix) > 0 {
-		key = strings.Join([]string{ao.Prefix, key}, ao.Separator)
+		key = strings.Join([]string{ao.Prefix, key}, ".")
 	}
 
 	if len(vals) > 1 {
@@ -203,10 +201,9 @@ func (ao *AppOptions) ApplyFlags(keySet any) {
 
 		if typeVal.Type.Kind() == reflect.Ptr && typeVal.Type.Elem().Kind() == reflect.Struct {
 			typeCb := &AppOptions{
-				Source:    ao.Source,
-				FlagSet:   ao.FlagSet,
-				Prefix:    key,
-				Separator: ao.Separator,
+				Source:  ao.Source,
+				FlagSet: ao.FlagSet,
+				Prefix:  key,
 			}
 			typeCb.ApplyFlags(reflect.New(typeVal.Type.Elem()).Interface())
 		}
@@ -265,12 +262,11 @@ func (ao *AppOptions) ApplyConfigs(keySet any) {
 
 		if fieldVal.Kind() == reflect.Ptr && fieldVal.Elem().Kind() == reflect.Struct {
 			fieldCb := &AppOptions{
-				Source:    ao.Source,
-				FlagSet:   ao.FlagSet,
-				Prefix:    key,
-				Separator: ao.Separator,
-				Print:     false,
-				tw:        ao.tw,
+				Source:  ao.Source,
+				FlagSet: ao.FlagSet,
+				Prefix:  key,
+				Print:   false,
+				tw:      ao.tw,
 			}
 
 			fieldCb.ApplyConfigs(fieldVal.Interface())

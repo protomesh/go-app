@@ -175,6 +175,8 @@ func NewApp[D Dependency](deps D, opts *AppOptions) App {
 
 	}
 
+	opts.Source = cfg
+
 	opts.ApplyConfigs(logBuilder)
 
 	log := logBuilder.build()

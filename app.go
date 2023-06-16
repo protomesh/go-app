@@ -158,6 +158,8 @@ func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 		panic(err)
 	}
 
+	opts.Source = cfg
+
 	opts.ApplyConfigs(appInstance)
 
 	if appInstance.ConfigFile.IsSet() {

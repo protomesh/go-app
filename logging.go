@@ -19,9 +19,9 @@ type loggerBuilder[D any] struct {
 
 	*zap.Logger
 
-	LogLevel Config ``
-	LogJson  Config
-	LogDev   Config
+	LogLevel Config `config:"log.level,str" default:"debug" usage:"Log level (debug, info, error)"`
+	LogJson  Config `config:"log.json,bool" default:"false" usage:"Log in json format"`
+	LogDev   Config `config:"log.dev,bool" default:"true" usage:"Log in development mode"`
 }
 
 func (l *loggerBuilder[D]) build() Logger {

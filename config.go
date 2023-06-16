@@ -35,7 +35,7 @@ type ConfigSource interface {
 	Has(k string) bool
 }
 
-type AppOptions[T any] struct {
+type AppOptions struct {
 	tw table.Writer
 
 	Print     bool
@@ -47,7 +47,7 @@ type AppOptions[T any] struct {
 	Args      []string
 }
 
-func (ao *AppOptions[T]) getFieldNameAndType(typeVal reflect.StructField) (string, string) {
+func (ao *AppOptions) getFieldNameAndType(typeVal reflect.StructField) (string, string) {
 
 	vals := strings.Split(typeVal.Tag.Get("config"), ",")
 
@@ -73,15 +73,15 @@ func (ao *AppOptions[T]) getFieldNameAndType(typeVal reflect.StructField) (strin
 
 }
 
-func (ao *AppOptions[T]) getFieldUsage(typeVal reflect.StructField) string {
+func (ao *AppOptions) getFieldUsage(typeVal reflect.StructField) string {
 	return typeVal.Tag.Get("usage")
 }
 
-func (ao *AppOptions[T]) getFieldDefaultValue(typeVal reflect.StructField) string {
+func (ao *AppOptions) getFieldDefaultValue(typeVal reflect.StructField) string {
 	return typeVal.Tag.Get("default")
 }
 
-func (ao *AppOptions[T]) ApplyFlags(keySet T) {
+func (ao *AppOptions) ApplyFlags(keySet any) {
 
 	t := reflect.TypeOf(keySet)
 
@@ -202,7 +202,7 @@ func (ao *AppOptions[T]) ApplyFlags(keySet T) {
 		}
 
 		if typeVal.Type.Kind() == reflect.Ptr && typeVal.Type.Elem().Kind() == reflect.Struct {
-			typeCb := &AppOptions[any]{
+			typeCb := &AppOptions{
 				Source:    ao.Source,
 				FlagSet:   ao.FlagSet,
 				Prefix:    key,
@@ -215,7 +215,7 @@ func (ao *AppOptions[T]) ApplyFlags(keySet T) {
 
 }
 
-func (ao *AppOptions[T]) ApplyConfigs(keySet T) T {
+func (ao *AppOptions) ApplyConfigs(keySet any) {
 
 	v := reflect.ValueOf(keySet)
 
@@ -264,7 +264,7 @@ func (ao *AppOptions[T]) ApplyConfigs(keySet T) T {
 		}
 
 		if fieldVal.Kind() == reflect.Ptr && fieldVal.Elem().Kind() == reflect.Struct {
-			fieldCb := &AppOptions[any]{
+			fieldCb := &AppOptions{
 				Source:    ao.Source,
 				FlagSet:   ao.FlagSet,
 				Prefix:    key,
@@ -282,7 +282,5 @@ func (ao *AppOptions[T]) ApplyConfigs(keySet T) T {
 		fmt.Println("Configuration table:")
 		fmt.Println(ao.tw.Render())
 	}
-
-	return keySet
 
 }

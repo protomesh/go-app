@@ -130,7 +130,9 @@ type app struct {
 	log Logger
 }
 
-func NewApp[D Dependency](deps D, opts *AppOptions[D]) App {
+func NewApp[D Dependency](deps D, opts *AppOptions) App {
+
+	logBuilder := &loggerBuilder[D]{}
 
 	if opts.FlagSet != nil {
 
@@ -140,6 +142,7 @@ func NewApp[D Dependency](deps D, opts *AppOptions[D]) App {
 		}
 
 		opts.ApplyFlags(deps)
+		opts.ApplyFlags(logBuilder)
 
 		opts.FlagSet.Parse(args)
 
@@ -172,7 +175,7 @@ func NewApp[D Dependency](deps D, opts *AppOptions[D]) App {
 
 	}
 
-	logBuilder := &loggerBuilder[D]{}
+	opts.ApplyConfigs(logBuilder)
 
 	log := logBuilder.build()
 

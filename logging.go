@@ -24,7 +24,7 @@ type loggerBuilder[D any] struct {
 	LogDev   Config `config:"log.dev,bool" default:"true" usage:"Log in development mode"`
 }
 
-func (l *loggerBuilder[D]) build() Logger {
+func (l *loggerBuilder[D]) build() *stdLogger {
 
 	zapConfig := zap.NewProductionConfig()
 
@@ -95,4 +95,8 @@ func (s *stdLogger) Panic(message string, kv ...interface{}) {
 
 func (s *stdLogger) With(kv ...interface{}) Logger {
 	return &stdLogger{s.logger.With(kv...)}
+}
+
+func (s *stdLogger) Sync() error {
+	return s.logger.Sync()
 }

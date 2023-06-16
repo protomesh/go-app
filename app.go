@@ -1,7 +1,6 @@
 package app
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"reflect"
@@ -115,31 +114,24 @@ func InjectAny[D any](app any, dep D, print bool, lw list.Writer) {
 
 }
 
-const (
-	configFile_cfg = "file"
-)
-
-func init() {
-
-	flag.String(ConvertKeyCase(configFile_cfg, KebabCase), "", "[string]\n\tPath to config file (JSON, TOML or YAML)\n")
-
-}
-
 type AppWithClose interface {
 	App
 	Close()
 }
 
 type app struct {
-	logBuilder interface {
+	log interface {
+		Logger
 		Sync() error
 	}
-	log Logger
+
+	ConfigFile Config `config:"config.file,str" usage:"Path to config file (JSON, TOML or YAML)"`
 }
 
 func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 
 	logBuilder := &loggerBuilder[D]{}
+	appInstance := &app{}
 
 	if opts.FlagSet != nil {
 
@@ -148,6 +140,7 @@ func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 			args = os.Args[1:]
 		}
 
+		opts.ApplyFlags(appInstance)
 		opts.ApplyFlags(deps)
 		opts.ApplyFlags(logBuilder)
 
@@ -165,14 +158,12 @@ func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 		panic(err)
 	}
 
-	configFile := cfg.Get(configFile_cfg)
-
-	if configFile.IsSet() {
+	if appInstance.ConfigFile.IsSet() {
 
 		cfg = NewCompositeSource(
 			NewFlagSource(opts.KeyCase, opts.FlagSet),
 			NewEnvSource(opts.KeyCase),
-			NewFileSource(configFile.StringVal()),
+			NewFileSource(appInstance.ConfigFile.StringVal()),
 		)
 
 		err := cfg.Load()
@@ -186,12 +177,7 @@ func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 
 	opts.ApplyConfigs(logBuilder)
 
-	log := logBuilder.build()
-
-	appInstance := &app{
-		logBuilder: logBuilder,
-		log:        log,
-	}
+	appInstance.log = logBuilder.build()
 
 	opts.Source = cfg
 
@@ -212,5 +198,5 @@ func (a *app) Log() Logger {
 }
 
 func (a *app) Close() {
-	a.logBuilder.Sync()
+	a.log.Sync()
 }

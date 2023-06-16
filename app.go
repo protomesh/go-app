@@ -136,7 +136,7 @@ func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 	if opts.FlagSet != nil {
 
 		args := opts.Args
-		if args != nil {
+		if args == nil {
 			args = os.Args[1:]
 		}
 

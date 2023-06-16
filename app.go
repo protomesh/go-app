@@ -23,8 +23,6 @@ type Injector[D any] struct {
 	dep D
 }
 
-type WithInjector[D any] *Injector[D]
-
 func (a *Injector[D]) Attach(app App, dep any) {
 	a.app = app
 	a.dep = dep.(D)
@@ -132,7 +130,7 @@ type app struct {
 	log Logger
 }
 
-func NewApp[D Dependency](deps D, opts *Options[D]) App {
+func NewApp[D Dependency](deps D, opts *AppOptions[D]) App {
 
 	if opts.FlagSet != nil {
 

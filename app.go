@@ -15,7 +15,6 @@ var (
 
 type App interface {
 	Log() Logger
-	Close()
 }
 
 type Dependency interface {
@@ -126,6 +125,11 @@ func init() {
 
 }
 
+type AppWithClose interface {
+	App
+	Close()
+}
+
 type app struct {
 	logBuilder interface {
 		Sync() error
@@ -133,7 +137,7 @@ type app struct {
 	log Logger
 }
 
-func NewApp[D Dependency](deps D, opts *AppOptions) App {
+func NewApp[D Dependency](deps D, opts *AppOptions) AppWithClose {
 
 	logBuilder := &loggerBuilder[D]{}
 

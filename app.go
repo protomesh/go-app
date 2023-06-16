@@ -15,7 +15,7 @@ type App interface {
 }
 
 type Dependency interface {
-	Attach(app App, dep interface{})
+	Attach(app any, dep any)
 }
 
 type Injector[D any] struct {
@@ -37,14 +37,14 @@ func (a *Injector[Dependency]) Log() Logger {
 }
 
 func Inject[D any](app App, dep D) {
-	inject(app, dep, false, nil)
+	InjectAny(app, dep, false, nil)
 }
 
 func InjectAndPrint[D any](app App, dep D) {
-	inject(app, dep, true, nil)
+	InjectAny(app, dep, true, nil)
 }
 
-func inject[D any](app App, dep D, print bool, lw list.Writer) {
+func InjectAny[D any](app any, dep D, print bool, lw list.Writer) {
 
 	depVal := reflect.ValueOf(dep)
 	appDep := reflect.TypeOf((*Dependency)(nil)).Elem()
@@ -93,7 +93,7 @@ func inject[D any](app App, dep D, print bool, lw list.Writer) {
 
 				fieldInst := fieldVal.Interface()
 
-				inject(fieldInst.(App), fieldInst, false, lw)
+				InjectAny(fieldInst, fieldInst, false, lw)
 
 				if lw != nil {
 					lw.UnIndent()
@@ -123,7 +123,6 @@ func init() {
 }
 
 type app struct {
-	cfg        ConfigSource
 	logBuilder interface {
 		Sync() error
 	}
@@ -182,7 +181,6 @@ func NewApp[D Dependency](deps D, opts *AppOptions) App {
 	log := logBuilder.build()
 
 	appInstance := &app{
-		cfg:        cfg,
 		logBuilder: logBuilder,
 		log:        log,
 	}

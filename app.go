@@ -9,6 +9,10 @@ import (
 	"github.com/jedib0t/go-pretty/v6/list"
 )
 
+var (
+	_ Dependency = &Injector[any]{}
+)
+
 type App interface {
 	Log() Logger
 	Close()
@@ -23,8 +27,8 @@ type Injector[D any] struct {
 	dep D
 }
 
-func (a *Injector[D]) Attach(app App, dep any) {
-	a.app = app
+func (a *Injector[D]) Attach(app any, dep any) {
+	a.app = app.(App)
 	a.dep = dep.(D)
 }
 

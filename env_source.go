@@ -25,7 +25,7 @@ func (e *envSource) Load() error {
 
 		sep := strings.Index(env, "=")
 
-		key := ConvertKeyCase(env[:sep-1], e.keyCase)
+		key := ConvertKeyCase(env[:sep], e.keyCase)
 		val := env[sep+1:]
 
 		e.configs[key] = NewConfig(val)
